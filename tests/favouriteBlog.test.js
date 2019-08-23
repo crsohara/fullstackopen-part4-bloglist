@@ -74,7 +74,7 @@ describe('Favourite blog', () => {
     expect(result).toEqual(listWithOneBlog[0])
   })
 
-  test('when list has 10 blogs and 36 likes', () => {
+  test('when list has 6 blogs and 36 likes', () => {
     const result = listHelper.favoriteBlog(listWithSixBlogsAndThirtysixLikes)
     expect(result).toEqual(listWithSixBlogsAndThirtysixLikes[2])
   })
