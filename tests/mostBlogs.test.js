@@ -69,13 +69,19 @@ describe('Most blogs', () => {
 
   })
 
-  test('when list has only 1 blog Edsger W. Dijkstra has most', () => {
+  test('when list has only 1 blog Edsger W. Dijkstra has most(1)', () => {
     const result = listHelper.mostBlogs(listWithOneBlog)
-    expect(result).toBe('Edsger W. Dijkstra')
+    expect(result).toEqual({
+      author: 'Edsger W. Dijkstra',
+      blogs: 1
+    })
   })
 
-  test('when list has 6 blogs and Robert C. Martin has most', () => {
+  test('when list has 6 blogs and Robert C. Martin has most(3)', () => {
     const result = listHelper.mostBlogs(listWithSixBlogsAndThirtysixLikes)
-    expect(result).toBe('Robert C. Martin')
+    expect(result).toEqual({
+      author: 'Robert C. Martin',
+      blogs: 3
+    })
   })
 })

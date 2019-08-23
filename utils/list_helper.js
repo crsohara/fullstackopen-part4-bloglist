@@ -26,12 +26,14 @@ const favoriteBlog = (blogs) => {
 const mostBlogs = (blogs) => {
   return blogs.length === 0
     ? 0
-    : _.head(_.maxBy(_.entries(_.countBy(blogs, 'author')), _.last))
+    : _(blogs).countBy('author').invert()
+      .map(function(author, blogs) { return { author: author, blogs: parseInt(blogs) }})
+      .reduce(function(prev, current) {return prev.blogs < current.blogs ? current : prev})
 }
 
 module.exports = {
   dummy,
   totalLikes,
   favoriteBlog,
-  mostBlogs
+  mostBlogs,
 }
