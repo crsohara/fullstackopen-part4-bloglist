@@ -101,6 +101,26 @@ test('blog POSTed without title or url returns status 400', async () => {
 
 })
 
+test('delete a blog', async () => {
+
+  const blogsInDb = await helper.blogsInDb()
+
+  const blogToDelete = blogsInDb[0]
+
+  await api
+    .delete(`/api/blogs/${blogToDelete.id}`)
+    .expect(204)
+
+  const blogsInDbAfterDeletion = await helper.blogsInDb()
+
+  expect(blogsInDbAfterDeletion.length).toBe(helper.initialBlogs.length - 1)
+
+  const contents = blogsInDbAfterDeletion.map(blog => blog.id)
+
+  expect(contents).not.toContain(blogToDelete.id)
+
+})
+
 
 afterAll( async () => {
   await Blog.deleteMany({})
