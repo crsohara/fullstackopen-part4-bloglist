@@ -28,8 +28,17 @@ test('blogs are returned as json', async () => {
 
 })
 
+test('blogs unique identifier is named id', async () => {
+
+  const blogsInDb = await helper.blogsInDb()
+
+  blogsInDb.map( blog => expect(blog.id).toBeDefined() )
+
+})
+
 
 afterAll( async () => {
   await Blog.deleteMany({})
   mongoose.connection.close()
+  console.log('\n\n\n')
 })
