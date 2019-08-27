@@ -64,6 +64,28 @@ test('blog is created successfully', async() => {
 
 })
 
+test('blog without likes property sets likes to 0', async () => {
+
+  const newBlog =  {
+    title: 'React patterns',
+    author: 'James Chan',
+    url: 'https://reactpatterns.com/',
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+    .expect('Content-type', /application\/json/)
+
+  const blogsInDb = await helper.blogsInDb()
+
+  expect(blogsInDb.length === helper.initialBlogs.length + 1)
+
+  blogsInDb.map( blog => expect(blog.likes).toBeGreaterThanOrEqual(0) )
+
+})
+
 
 afterAll( async () => {
   await Blog.deleteMany({})
