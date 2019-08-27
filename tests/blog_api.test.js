@@ -86,6 +86,21 @@ test('blog without likes property sets likes to 0', async () => {
 
 })
 
+test('blog POSTed without title or url returns status 400', async () => {
+
+  const newBlog =  {
+    author: 'James Chan',
+    url: 'https://reactpatterns.com/',
+    likes: 1
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(400)
+
+})
+
 
 afterAll( async () => {
   await Blog.deleteMany({})
