@@ -121,6 +121,33 @@ test('delete a blog', async () => {
 
 })
 
+test('update a blog', async () => {
+
+  const blogsInDb = await helper.blogsInDb()
+
+  const blogToUpdate = blogsInDb[0]
+
+  const updatedBlogData = {
+    title: 'my updated title!'
+  }
+
+  const updatedBlog = Object.assign(blogToUpdate, updatedBlogData)
+
+  const response = await api
+    .put(`/api/blogs/${blogToUpdate.id}`)
+    .send(updatedBlog)
+    .expect(200)
+
+  expect(response.body.title).toContain(updatedBlogData.title)
+
+  const blogsInDbAfterUpdate = await helper.blogsInDb()
+
+  const titles = blogsInDbAfterUpdate.map( blog => blog.title)
+
+  expect(titles).toContain(updatedBlogData.title)
+
+})
+
 
 afterAll( async () => {
   await Blog.deleteMany({})
