@@ -14,15 +14,27 @@ usersRouter.post('/', async (request, response) => {
 
   try {
 
-    const body = request.body
+    const { username, name, password} = request.body
+
+    if ( ! password ) {
+
+      return response.status(400).json({ error: 'Password is missing' }).end()
+
+    }
+
+    if ( password.length < 3 ) {
+
+      return response.status(400).json({ error: 'Password field too short' }).end()
+
+    }
 
     const saltRounds = 10
 
-    const passwordHash = await bcrypt.hash(body.password, saltRounds)
+    const passwordHash = await bcrypt.hash(password, saltRounds)
 
     const user = new User({
-      username: body.username,
-      name: body.name,
+      username,
+      name,
       passwordHash,
     })
 
@@ -33,7 +45,7 @@ usersRouter.post('/', async (request, response) => {
 
   } catch(exception) {
 
-    console.log(exception)
+    response.status(400).json({ error: exception.message })
 
   }
 
