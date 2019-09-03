@@ -2,6 +2,7 @@ const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
 const Blog = require('../models/blog')
+const User = require('../models/user')
 const helper = require('./test_helper')
 
 const api = supertest(app)
@@ -34,6 +35,27 @@ describe('Get blogs:', () => {
 describe('Create blog:', () => {
   test('Create a new blog entry', async() => {
 
+    await User.deleteMany({})
+
+    await api
+      .post('/api/users')
+      .send({
+        username: 'johnsmith',
+        name: 'john',
+        password: 'helloworld'
+      })
+      .expect(201)
+
+    const loginResponse = await api
+      .post('/api/login')
+      .send({
+        username: 'johnsmith',
+        password: 'helloworld'
+      })
+      .expect(200)
+
+    const authToken = `bearer ${loginResponse.body.token}`
+
     const newBlog = {
       _id: '5a422b3a1b54a676234d17f9',
       title: 'Canonical string reduction',
@@ -45,6 +67,7 @@ describe('Create blog:', () => {
 
     await api
       .post('/api/blogs')
+      .set({Authorization: authToken})
       .send(newBlog)
       .expect(201)
       .expect('Content-type', /application\/json/)
@@ -73,6 +96,27 @@ describe('Blog attributes:', () => {
 
   test('Blogs without no "likes" attribute sets likes to 0', async () => {
 
+    await User.deleteMany({})
+
+    await api
+      .post('/api/users')
+      .send({
+        username: 'johnsmith',
+        name: 'john',
+        password: 'helloworld'
+      })
+      .expect(201)
+
+    const loginResponse = await api
+      .post('/api/login')
+      .send({
+        username: 'johnsmith',
+        password: 'helloworld'
+      })
+      .expect(200)
+
+    const authToken = `bearer ${loginResponse.body.token}`
+
     const newBlog =  {
       title: 'React patterns',
       author: 'James Chan',
@@ -81,6 +125,7 @@ describe('Blog attributes:', () => {
 
     await api
       .post('/api/blogs')
+      .set({Authorization: authToken})
       .send(newBlog)
       .expect(201)
       .expect('Content-type', /application\/json/)
@@ -138,6 +183,27 @@ describe('Update blog:', () => {
 
   test('Update a blog', async () => {
 
+    await User.deleteMany({})
+
+    await api
+      .post('/api/users')
+      .send({
+        username: 'johnsmith',
+        name: 'john',
+        password: 'helloworld'
+      })
+      .expect(201)
+
+    const loginResponse = await api
+      .post('/api/login')
+      .send({
+        username: 'johnsmith',
+        password: 'helloworld'
+      })
+      .expect(200)
+
+    const authToken = `bearer ${loginResponse.body.token}`
+
     const blogsInDb = await helper.blogsInDb()
 
     const blogToUpdate = blogsInDb[0]
@@ -150,6 +216,7 @@ describe('Update blog:', () => {
 
     const response = await api
       .put(`/api/blogs/${blogToUpdate.id}`)
+      .set({Authorization: authToken})
       .send(updatedBlog)
       .expect(200)
 
@@ -167,6 +234,7 @@ describe('Update blog:', () => {
 
 afterAll( async () => {
   await Blog.deleteMany({})
+  await User.deleteMany({})
   mongoose.connection.close()
   console.log('\n\n\n')
 })
