@@ -20,10 +20,16 @@ blogsRouter.post('/', async (request, response) => {
   const blog = request.body
 
   try {
+    
+    if ( ! request.token ) {
+      return response.status(401).json({
+        error: 'Missing or invalid token'
+      })
+    }
 
     const decodedToken = jwt.verify(request.token, process.env.SECRET)
 
-    if ( ! request.token || ! decodedToken.id ) {
+    if ( ! decodedToken.id ) {
       return response.status(401).json({
         error: 'Missing or invalid token'
       })
@@ -49,7 +55,17 @@ blogsRouter.post('/', async (request, response) => {
 
     await user.save()
 
-    return response.status(201).json(result)
+    // too hacky
+    // result.populate('user', {
+    //     username: 1,
+    //     name: 1
+    //   }, () => {})
+    const populatedBlog = await Blog.findById(result._id).populate('user', {
+      username: 1,
+      name: 1
+    })
+
+    return response.status(201).json(populatedBlog)
 
   } catch (exception) {
 
@@ -65,6 +81,20 @@ blogsRouter.post('/', async (request, response) => {
 
 blogsRouter.delete('/:id', async (request, response) => {
 
+  if ( ! request.token ) {
+    return response.status(401).json({
+      error: 'Missing or invalid token'
+    })
+  }
+
+  const decodedToken = jwt.verify(request.token, process.env.SECRET)
+
+  if ( ! decodedToken.id ) {
+    return response.status(401).json({
+      error: 'Missing or invalid token'
+    })
+  }
+
   try {
 
     await Blog.findByIdAndRemove(request.params.id)
@@ -73,13 +103,32 @@ blogsRouter.delete('/:id', async (request, response) => {
 
   } catch (exception) {
 
-    console.log(exception)
+    if (exception.name === 'JsonWebTokenError') {
+      return response.status(400).json({ error: 'Invalid token' })
+    }
+
+    response.status(400).json({ error: exception })
 
   }
 
 })
 
 blogsRouter.put('/:id', async (request, response) => {
+
+  if ( ! request.token ) {
+    return response.status(401).json({
+      error: 'Missing or invalid token'
+    })
+  }
+
+  const decodedToken = jwt.verify(request.token, process.env.SECRET)
+
+  if ( ! decodedToken.id ) {
+    return response.status(401).json({
+      error: 'Missing or invalid token'
+    })
+  }
+
   const blog = request.body
 
   try {
@@ -92,8 +141,11 @@ blogsRouter.put('/:id', async (request, response) => {
     return response.json(updatedBlog.toJSON())
 
   } catch(exception) {
+    if (exception.name === 'JsonWebTokenError') {
+      return response.status(400).json({ error: 'Invalid token' })
+    }
 
-    console.log(exception)
+    response.status(400).json({ error: exception })
 
   }
 })
